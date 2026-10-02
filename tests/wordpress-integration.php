@@ -35,7 +35,8 @@ $failed = jev_rules_enqueue($post, 'support'); $failure = true;
 try { jev_rules_process($failed); throw new RuntimeException('Expected provider failure'); } catch (InvalidArgumentException $error) { check_jev(str_contains($error->getMessage(), '503'), 'Wrong failure'); }
 check_jev(get_post_meta($failed, '_jev_status', true) === 'failed' && $emails === 1, 'Failure was not persisted and reported');
 check_jev(get_option('jev_rules_lock_' . $failed, null) === null, 'Lock leaked');
-$answers = $fixture['answers']; $answers['department']['probabilities']['billing'] = .6; $answers['department']['probabilities']['technical'] = .3; $answers['department']['probabilities']['sales'] = .05; $answers['department']['probabilities']['other'] = .05;
+$reviewFixture = json_decode(file_get_contents($base . '/examples/synthetic-billing-review.json'), true);
+$answers = $reviewFixture['answers'];
 check_jev(\JevRules\DecisionPacks::decide($pack, ['text'=>'fixture'], $answers)['outcome'] === 'review', 'Weak answer did not require review');
 $answers['department']['probabilities']['billing'] = 2;
 try { \JevRules\DecisionPacks::decide($pack, ['text'=>'fixture'], $answers); throw new RuntimeException('Invalid probability accepted'); } catch (InvalidArgumentException $error) { check_jev(true, 'Malformed answer rejected'); }

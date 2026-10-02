@@ -2,11 +2,11 @@
 
 A WordPress plugin for queued post classification, versioned rules and an administrator review history. It uses native cron, capabilities, nonces, HTTP and error-mail facilities.
 
-**v0.1.0 experimental alpha · MIT · PHP 8.1+**. Tested in WordPress 7.1.1 with PHP 8.3.33. Independent community integration.
+**v0.1.1 experimental alpha · MIT · PHP 8.1+**. Tested in WordPress 7.1.1 with PHP 8.3.33. Independent community integration.
 
 ## Install
 
-Download the v0.1.0 GitHub release ZIP, unzip it as `wp-content/plugins/wordpress-jev-rules`, then activate **Jev Rules**. Add your Typesafe API key to server configuration, for example in `wp-config.php`:
+Download the v0.1.1 GitHub release ZIP, unzip it as `wp-content/plugins/wordpress-jev-rules`, then activate **Jev Rules**. Add your Typesafe API key to server configuration, for example in `wp-config.php`:
 
 ```php
 define('JEV_RULES_API_KEY', getenv('TYPESAFE_API_KEY'));
@@ -33,3 +33,7 @@ The PHP decision gates derive from DecisionPacks. Native PHP fingerprints are lo
 See [reuse and provenance](docs/reuse.md), [contributing](CONTRIBUTING.md) and [security](SECURITY.md).
 
 [Recorded verification scope](docs/verification.md).
+
+## Compare accepted and review fixtures
+
+`examples/synthetic-billing-response.json` gives billing probability 0.94; `examples/synthetic-billing-review.json` gives 0.60 despite confidence 0.99. The same `packs/support-triage.json` routes the first to billing and the second to review. Run `npm test` to replay both in WordPress Playground. These responses are synthetic, not live Jev measurements.

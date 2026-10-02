@@ -1,0 +1,17 @@
+{
+  "description": "Synthetic low-probability billing response; falls back to review, not a measured Jev result.",
+  "model": "jev-1.13.0",
+  "answers": {
+    "department": {
+      "type": "choice",
+      "choice": "billing",
+      "probabilities": {
+        "billing": 0.6,
+        "technical": 0.3,
+        "sales": 0.05,
+        "other": 0.05
+      },
+      "confidence": 0.99
+    }
+  }
+}

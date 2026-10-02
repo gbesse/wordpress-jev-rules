@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Jev Rules
  * Description: Queue versioned semantic decisions for WordPress posts and expose them to other plugins.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Requires at least: 6.8
  * Requires PHP: 8.1
  * License: MIT

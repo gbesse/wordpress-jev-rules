@@ -1,3 +1,7 @@
+## 2026-10-02 — v0.1.1
+
+Add a synthetic low-probability billing fixture and replay it in the WordPress integration test.
+
 # AI change log
 
 This file records the purpose and technical decisions of agent-authored changes.

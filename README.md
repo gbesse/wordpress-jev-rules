@@ -2,11 +2,11 @@
 
 A WordPress plugin for queued post classification, versioned rules and an administrator review history. It uses native cron, capabilities, nonces, HTTP and error-mail facilities.
 
-**v0.1.1 experimental alpha · MIT · PHP 8.1+**. Tested in WordPress 7.1.1 with PHP 8.3.33. Independent community integration.
+**v0.1.2 experimental alpha · MIT · PHP 8.1+**. Tested in WordPress 7.1.1 with PHP 8.3.33. Independent community integration.
 
 ## Install
 
-Download the v0.1.1 GitHub release ZIP, unzip it as `wp-content/plugins/wordpress-jev-rules`, then activate **Jev Rules**. Add your Typesafe API key to server configuration, for example in `wp-config.php`:
+Download the v0.1.2 GitHub release ZIP, unzip it as `wp-content/plugins/wordpress-jev-rules`, then activate **Jev Rules**. Add your Typesafe API key to server configuration, for example in `wp-config.php`:
 
 ```php
 define('JEV_RULES_API_KEY', getenv('TYPESAFE_API_KEY'));
@@ -37,3 +37,11 @@ See [reuse and provenance](docs/reuse.md), [contributing](CONTRIBUTING.md) and [
 ## Compare accepted and review fixtures
 
 `examples/synthetic-billing-response.json` gives billing probability 0.94; `examples/synthetic-billing-review.json` gives 0.60 despite confidence 0.99. The same `packs/support-triage.json` routes the first to billing and the second to review. Run `npm test` to replay both in WordPress Playground. These responses are synthetic, not live Jev measurements.
+
+## October 2026 improvement · Amélioration d’octobre 2026 · Mejora de octubre de 2026
+
+Run `npm run demo:fixtures` to compare the bundled synthetic billing response (0.94) with the review case (0.60) against the declared 0.90 threshold, without starting WordPress. `npm test` remains the plugin integration check.
+
+Exécutez `npm run demo:fixtures` pour comparer les réponses de facturation synthétiques 0,94 et 0,60 au seuil déclaré de 0,90, sans démarrer WordPress. `npm test` reste le contrôle d’intégration du plugin.
+
+Ejecute `npm run demo:fixtures` para comparar las respuestas sintéticas de facturación 0,94 y 0,60 con el umbral declarado de 0,90, sin iniciar WordPress. `npm test` sigue siendo la comprobación de integración del complemento.

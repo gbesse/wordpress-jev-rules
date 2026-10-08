@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test --test-timeout=240000 tests/playground.test.mjs"
+    "test": "node --test --test-timeout=240000 tests/playground.test.mjs",
+    "demo:fixtures": "node examples/compare-fixtures.mjs"
   },
   "devDependencies": {
     "@wp-playground/cli": "3.1.54"

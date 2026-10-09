@@ -45,3 +45,7 @@ Run `npm run demo:fixtures` to compare the bundled synthetic billing response (0
 Exécutez `npm run demo:fixtures` pour comparer les réponses de facturation synthétiques 0,94 et 0,60 au seuil déclaré de 0,90, sans démarrer WordPress. `npm test` reste le contrôle d’intégration du plugin.
 
 Ejecute `npm run demo:fixtures` para comparar las respuestas sintéticas de facturación 0,94 y 0,60 con el umbral declarado de 0,90, sin iniciar WordPress. `npm test` sigue siendo la comprobación de integración del complemento.
+
+## Contrôle d’adoption · Adoption check · Comprobación de adopción
+
+[Français : essayer un cas concret](examples/adoption-check.md) · [English: try a concrete case](examples/adoption-check.md) · [Español: pruebe un caso concreto](examples/adoption-check.md).

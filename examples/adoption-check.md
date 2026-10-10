@@ -40,3 +40,15 @@ FR : adaptez une copie de la fixture locale à cette situation, puis vérifiez l
 EN: adapt a copy of the local fixture to this situation, then check the behavior described above. Values are illustrative, not measured Jev output.
 
 ES: adapte una copia de la fixture local a esta situación y compruebe el comportamiento descrito arriba. Los valores son ilustrativos, no resultados Jev medidos.
+
+## Second cas · Second case · Segundo caso
+
+```text
+http_result=timeout; queued_post_id=42
+```
+
+**FR :** Un délai réseau dépassé doit laisser le job en échec visible, sans publier ni appliquer de décision par défaut. Inspectez la notification administrateur et la revue.
+
+**EN:** A network timeout should leave a visible failed job without publishing or applying a default decision. Inspect administrator notification and review.
+
+**ES:** Un tiempo de espera de red agotado debe dejar un trabajo fallido visible, sin publicar ni aplicar una decisión predeterminada. Revise la notificación al administrador y la revisión.

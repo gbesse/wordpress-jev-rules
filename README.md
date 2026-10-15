@@ -49,3 +49,11 @@ Ejecute `npm run demo:fixtures` para comparar las respuestas sintéticas de fact
 ## Contrôle d’adoption · Adoption check · Comprobación de adopción
 
 [Français : essayer un cas concret](examples/adoption-check.md) · [English: try a concrete case](examples/adoption-check.md) · [Español: pruebe un caso concreto](examples/adoption-check.md).
+
+## Private phased failures / Échecs privés par étape / Fallos privados por etapa
+
+EN: Failure receipts now distinguish decision execution from `consumer_hook` failures after a valid result. Persisted admin errors, standard logs, notification bodies and thrown messages use fixed FR/EN/ES diagnostics without arbitrary provider/consumer text. The explicit local `jev_rules_error` hook still receives the original exception; its own failure cannot replace the safe public error. Computed results remain inspectable after a consumer failure, but external hook effects cannot be rolled back or assumed absent. Tests run in isolated WordPress Playground with HTTP and email intercepted; no real email or production post is modified.
+
+FR : Les reçus distinguent désormais calcul de décision et échec `consumer_hook` après résultat valide. Erreurs admin, logs standards, corps de notification et exceptions utilisent des diagnostics fixes FR/EN/ES, sans texte fournisseur/consommateur arbitraire. Le hook local explicite `jev_rules_error` reçoit encore l’exception originale ; son échec ne remplace pas l’erreur publique sûre. Le résultat calculé reste consultable, sans pouvoir annuler ni supposer absents les effets externes du hook. Tests WordPress Playground isolés, HTTP/emails interceptés ; aucun email réel ni post de production modifié.
+
+ES: Recibos distinguen cálculo de decisión y fallos `consumer_hook` tras resultado válido. Errores admin, logs estándar, notificaciones y excepciones usan diagnósticos fijos FR/EN/ES sin texto arbitrario del proveedor/consumidor. Hook local explícito `jev_rules_error` sigue recibiendo excepción original; su fallo no sustituye error público seguro. Resultado sigue visible, sin poder revertir ni asumir ausentes efectos externos. Pruebas en WordPress Playground aislado, HTTP/emails interceptados; sin emails reales ni posts de producción modificados.

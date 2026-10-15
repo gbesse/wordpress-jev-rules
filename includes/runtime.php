@@ -43,6 +43,7 @@ function jev_rules_process(int $job_id): void {
     if (!$job || $job->post_type !== 'jev_decision' || get_post_meta($job_id, '_jev_status', true) !== 'queued') { return; }
     // add_option uses a unique database key, unlike a check-then-set transient lock.
     if (!add_option('jev_rules_lock_' . $job_id, time(), '', false)) { return; }
+    $phase = 'decision';
     try {
         if (get_post_meta($job_id, '_jev_status', true) !== 'queued') { return; }
         update_post_meta($job_id, '_jev_status', 'running');
@@ -53,13 +54,21 @@ function jev_rules_process(int $job_id): void {
         if (!jev_rules_current($data)) { update_post_meta($job_id, '_jev_status', 'stale'); return; }
         update_post_meta($job_id, '_jev_status', 'succeeded');
         // Consumers own side effects and authorization; this hook does not publish or modify the source post.
+        $phase = 'consumer_hook';
         do_action('jev_rules_decided', $decision, $data['post_id'], $data['rule'], $job_id);
     } catch (Throwable $error) {
-        update_post_meta($job_id, '_jev_status', 'failed'); update_post_meta($job_id, '_jev_error', $error->getMessage());
-        error_log('Jev Rules job ' . $job_id . ': ' . $error->getMessage());
+        $safe = $phase === 'consumer_hook'
+            ? 'FR : décision calculée, hook consommateur en échec. EN: decision computed, consumer hook failed. ES: decisión calculada, hook consumidor falló.'
+            : 'FR : décision Jev impossible. EN: Jev decision failed. ES: la decisión Jev falló.';
+        update_post_meta($job_id, '_jev_status', 'failed');
+        update_post_meta($job_id, '_jev_error', $safe);
+        update_post_meta($job_id, '_jev_failure_phase', $phase);
+        update_post_meta($job_id, '_jev_error_type', get_class($error));
+        error_log('Jev Rules job ' . $job_id . ': ' . $safe);
         $environment = defined('JEV_RULES_ENVIRONMENT') ? JEV_RULES_ENVIRONMENT : 'prod';
-        if (!wp_mail(get_option('admin_email'), '[wordpress-jev-rules][' . $environment . '] DecisionError', 'Job ' . $job_id . ': ' . get_class($error) . ': ' . $error->getMessage())) { error_log('Jev Rules administrator email delivery failed for job ' . $job_id); }
-        do_action('jev_rules_error', $error, $job_id);
-        throw $error;
+        if (!wp_mail(get_option('admin_email'), '[wordpress-jev-rules][' . $environment . '] DecisionError', 'Job ' . $job_id . ': ' . $safe)) { error_log('Jev Rules administrator email delivery failed for job ' . $job_id); }
+        try { do_action('jev_rules_error', $error, $job_id); }
+        catch (Throwable $observerError) { error_log('Jev Rules error observer failed for job ' . $job_id); }
+        throw new RuntimeException($safe);
     } finally { delete_option('jev_rules_lock_' . $job_id); }
 }

@@ -14,8 +14,8 @@ $base = dirname(__DIR__);
 $pack = json_decode(file_get_contents($base . '/packs/support-triage.json'), true);
 $fixture = json_decode(file_get_contents($base . '/examples/synthetic-billing-response.json'), true);
 update_option('jev_rules_packs', ['support'=>$pack]);
-$requests = 0; $emails = 0; $failure = false;
-add_filter('pre_wp_mail', function ($return, $attributes) use (&$emails) { $emails++; return true; }, 10, 2);
+$requests = 0; $emails = 0; $failure = false; $emailMessages = [];
+add_filter('pre_wp_mail', function ($return, $attributes) use (&$emails, &$emailMessages) { $emails++; $emailMessages[] = $attributes; return true; }, 10, 2);
 add_filter('pre_http_request', function ($pre, $args, $url) use (&$requests, &$failure, $fixture) {
     if ($url !== 'https://api.typesafe.ai/v1/systemone') { return $pre; }
     $requests++;
@@ -32,9 +32,21 @@ jev_rules_process($job); check_jev($requests === 1, 'Completed job ran twice');
 $stale = jev_rules_enqueue($post, 'support'); wp_update_post(['ID'=>$post,'post_content'=>'Changed while queued']);
 jev_rules_process($stale); check_jev(get_post_meta($stale, '_jev_status', true) === 'stale' && $requests === 1, 'Stale snapshot called provider');
 $failed = jev_rules_enqueue($post, 'support'); $failure = true;
-try { jev_rules_process($failed); throw new RuntimeException('Expected provider failure'); } catch (InvalidArgumentException $error) { check_jev(str_contains($error->getMessage(), '503'), 'Wrong failure'); }
+try { jev_rules_process($failed); throw new RuntimeException('Expected provider failure'); } catch (RuntimeException $error) { check_jev(str_contains($error->getMessage(), 'Jev decision failed'), 'Wrong failure'); }
 check_jev(get_post_meta($failed, '_jev_status', true) === 'failed' && $emails === 1, 'Failure was not persisted and reported');
 check_jev(get_option('jev_rules_lock_' . $failed, null) === null, 'Lock leaked');
+check_jev(get_post_meta($failed, '_jev_failure_phase', true) === 'decision', 'Wrong failure phase');
+$failure = false;
+$throwingHook = function () { throw new RuntimeException('synthetic-test-key private consumer detail'); };
+add_action('jev_rules_decided', $throwingHook);
+$hookFailed = jev_rules_enqueue($post, 'support');
+try { jev_rules_process($hookFailed); throw new RuntimeException('Expected hook failure'); }
+catch (RuntimeException $error) { check_jev(!str_contains($error->getMessage(), 'synthetic-test-key'), 'Thrown diagnostic leaked key'); }
+remove_action('jev_rules_decided', $throwingHook);
+check_jev(get_post_meta($hookFailed, '_jev_failure_phase', true) === 'consumer_hook', 'Consumer failure mislabeled as inference');
+check_jev(get_post_meta($hookFailed, '_jev_result', true)['outcome'] === 'billing', 'Valid computed decision lost');
+check_jev(!str_contains(wp_json_encode($emailMessages), 'synthetic-test-key'), 'Captured email leaked key');
+check_jev(!str_contains(get_post_meta($hookFailed, '_jev_error', true), 'private consumer detail'), 'Saved diagnostic leaked private detail');
 $reviewFixture = json_decode(file_get_contents($base . '/examples/synthetic-billing-review.json'), true);
 $answers = $reviewFixture['answers'];
 check_jev(\JevRules\DecisionPacks::decide($pack, ['text'=>'fixture'], $answers)['outcome'] === 'review', 'Weak answer did not require review');

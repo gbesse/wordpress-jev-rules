@@ -31,6 +31,16 @@ check_jev(get_post_status($post) === 'draft', 'Source post was published');
 jev_rules_process($job); check_jev($requests === 1, 'Completed job ran twice');
 $stale = jev_rules_enqueue($post, 'support'); wp_update_post(['ID'=>$post,'post_content'=>'Changed while queued']);
 jev_rules_process($stale); check_jev(get_post_meta($stale, '_jev_status', true) === 'stale' && $requests === 1, 'Stale snapshot called provider');
+$tampered = jev_rules_enqueue($post, 'support');
+$stored = json_decode(get_post($tampered)->post_content, true);
+$stored['state']['text'] = 'Synthetic changed persisted state';
+wp_update_post(wp_slash(['ID'=>$tampered,'post_content'=>wp_json_encode($stored, JSON_THROW_ON_ERROR)]));
+$beforeTampered = $requests;
+jev_rules_process($tampered);
+check_jev(get_post_meta($tampered, '_jev_status', true) === 'stale', 'Changed persisted state was accepted');
+check_jev($requests === $beforeTampered, 'Changed persisted state called the provider');
+check_jev(get_post_meta($tampered, '_jev_result', true) === '', 'Changed persisted state saved a result');
+check_jev(get_option('jev_rules_lock_' . $tampered, null) === null, 'Stale persisted-state lock leaked');
 $failed = jev_rules_enqueue($post, 'support'); $failure = true;
 try { jev_rules_process($failed); throw new RuntimeException('Expected provider failure'); } catch (RuntimeException $error) { check_jev(str_contains($error->getMessage(), 'Jev decision failed'), 'Wrong failure'); }
 check_jev(get_post_meta($failed, '_jev_status', true) === 'failed' && $emails === 1, 'Failure was not persisted and reported');

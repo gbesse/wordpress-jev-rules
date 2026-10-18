@@ -23,7 +23,7 @@ function jev_rules_enqueue(int $post_id, string $rule): int {
 }
 function jev_rules_current(array $data): bool {
     $post = get_post($data['post_id']); $registry = jev_rules_registry();
-    return $post && isset($registry[$data['rule']]) && jev_rules_hash($registry[$data['rule']]) === jev_rules_hash($data['pack']) && jev_rules_hash(jev_rules_state($post)) === $data['input_hash'];
+    return $post && isset($registry[$data['rule']]) && jev_rules_hash($data['state']) === $data['input_hash'] && jev_rules_hash($registry[$data['rule']]) === jev_rules_hash($data['pack']) && jev_rules_hash(jev_rules_state($post)) === $data['input_hash'];
 }
 function jev_rules_evaluate(array $pack, array $state): array {
     \JevRules\DecisionPacks::validate($pack); \JevRules\DecisionPacks::state($pack, $state);

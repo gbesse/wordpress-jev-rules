@@ -72,3 +72,15 @@ function jev_rules_process(int $job_id): void {
         throw new RuntimeException($safe);
     } finally { delete_option('jev_rules_lock_' . $job_id); }
 }
+
+/** Purpose: Read a minimal job receipt without rerunning decisions or consumer effects. */
+function jev_rules_job_receipt(int $job_id): array {
+    $job = get_post($job_id);
+    \JevRules\DecisionPacks::check($job && $job->post_type === 'jev_decision', 'Job inconnu / Unknown job / Trabajo desconocido');
+    $data = json_decode($job->post_content, true, 512, JSON_THROW_ON_ERROR);
+    \JevRules\DecisionPacks::check(is_array($data) && isset($data['post_id'], $data['rule'], $data['state'], $data['pack'], $data['input_hash']), 'Job invalide / Invalid job / Trabajo invalido');
+    \JevRules\DecisionPacks::check(current_user_can('edit_post', (int)$data['post_id']), 'Acces interdit / Access denied / Acceso denegado');
+    $record = get_post_meta($job_id, '_jev_result', true);
+    $phase = get_post_meta($job_id, '_jev_failure_phase', true);
+    return ['job_id'=>$job_id,'source_post_id'=>(int)$data['post_id'],'status'=>get_post_meta($job_id, '_jev_status', true),'input_current'=>jev_rules_current($data),'decision_recorded'=>is_array($record) && isset($record['outcome']),'failure_phase'=>in_array($phase,['decision','consumer_hook'],true)?$phase:null,'consumer_effect_verified'=>false];
+}

@@ -70,4 +70,12 @@ if (file_exists($base . '/tests/golden-decisions.json')) {
         check_jev($actual === $case['expected'], 'Reference runtime disagreement: ' . $case['name']);
     }
 }
+
+$receipt = jev_rules_job_receipt($hookFailed);
+check_jev($receipt['status'] === 'failed' && $receipt['decision_recorded'] && $receipt['failure_phase'] === 'consumer_hook', 'Receipt hid computed decision after hook failure');
+check_jev($receipt['consumer_effect_verified'] === false, 'Receipt invented downstream effect verification');
+wp_set_current_user(0);
+try { jev_rules_job_receipt($hookFailed); throw new RuntimeException('Anonymous receipt accepted'); }
+catch (InvalidArgumentException $error) { check_jev(str_contains($error->getMessage(),'Access denied'), 'Wrong receipt access error'); }
+wp_set_current_user(1);
 echo wp_json_encode(['wordpress'=>$GLOBALS['wp_version'],'php'=>PHP_VERSION,'checks'=>$checks,'status'=>'passed']) . "\n";

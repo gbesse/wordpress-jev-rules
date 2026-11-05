@@ -64,3 +64,12 @@ FR : Avant calcul, le job vérifie aussi que son état enregistré correspond à
 EN: Before evaluation, jobs also verify that stored state matches their own `input_hash`, in addition to checking the current post and rule. Corrupted stored state becomes `stale` without a call or saved result. The hash does not authenticate an administrator able to rewrite the entire job. Isolated WordPress Playground test; HTTP and emails fully intercepted, no actual delivery.
 
 ES: Antes del cálculo se comprueba que el estado almacenado coincide con su `input_hash`, además del artículo y regla actuales. Un estado corrupto pasa a `stale` sin llamada ni resultado. El hash no autentica a un administrador capaz de reescribir todo el job. Prueba aislada WordPress Playground; HTTP y correos interceptados completamente, sin envío real.
+
+
+## 2026-11-05 — FR / EN / ES
+
+FR : `jev_rules_job_receipt($job_id)` expose un reçu minimal autorisé par `edit_post` : statut, fraîcheur de l’entrée, décision enregistrée et phase d’échec. Un hook consommateur en échec peut ainsi garder `decision_recorded:true`. Aucun nouveau jugement, email ou effet déclenché par la lecture ; effets du consommateur non vérifiés. Validation dans WordPress Playground local, pas sur un site utilisateur.
+
+EN: `jev_rules_job_receipt($job_id)` exposes a minimal `edit_post`-authorized receipt: status, input freshness, recorded decision and failure phase. A failed consumer hook can retain `decision_recorded:true`. Reading triggers no new judgment, email or effect; downstream effects remain unverified. Validated in local WordPress Playground, not a user site.
+
+ES: `jev_rules_job_receipt($job_id)` expone recibo mínimo autorizado por `edit_post`: estado, vigencia de entrada, decisión registrada y fase de fallo. Hook consumidor fallido puede conservar `decision_recorded:true`. Leer no dispara juicio, email ni efecto; efectos posteriores no verificados. Validación en WordPress Playground local, no sitio del usuario.

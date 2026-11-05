@@ -9,5 +9,6 @@
   },
   "devDependencies": {
     "@wp-playground/cli": "3.1.54"
-  }
+  },
+  "version": "0.1.5"
 }

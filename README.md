@@ -73,3 +73,12 @@ FR : `jev_rules_job_receipt($job_id)` expose un reçu minimal autorisé par `edi
 EN: `jev_rules_job_receipt($job_id)` exposes a minimal `edit_post`-authorized receipt: status, input freshness, recorded decision and failure phase. A failed consumer hook can retain `decision_recorded:true`. Reading triggers no new judgment, email or effect; downstream effects remain unverified. Validated in local WordPress Playground, not a user site.
 
 ES: `jev_rules_job_receipt($job_id)` expone recibo mínimo autorizado por `edit_post`: estado, vigencia de entrada, decisión registrada y fase de fallo. Hook consumidor fallido puede conservar `decision_recorded:true`. Leer no dispara juicio, email ni efecto; efectos posteriores no verificados. Validación en WordPress Playground local, no sitio del usuario.
+
+
+## 2026-11-12 — FR / EN / ES
+
+FR : jev_rules_cancel_pending annule uniquement les tâches en attente après autorisation, sous le verrou du worker, et retire leur cron. Ne révoque pas un effet déjà exécuté. Validation WordPress Playground, HTTP simulé et emails capturés.
+
+EN: jev_rules_cancel_pending cancels only authorized queued jobs under the worker lock and clears their cron event. It cannot undo completed effects. WordPress Playground validation uses synthetic HTTP and captured mail.
+
+ES: jev_rules_cancel_pending cancela solo tareas pendientes autorizadas bajo el bloqueo del worker y elimina su cron. No revierte efectos ejecutados. Validación WordPress Playground con HTTP sintético y correo capturado.

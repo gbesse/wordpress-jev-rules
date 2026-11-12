@@ -84,3 +84,16 @@ function jev_rules_job_receipt(int $job_id): array {
     $phase = get_post_meta($job_id, '_jev_failure_phase', true);
     return ['job_id'=>$job_id,'source_post_id'=>(int)$data['post_id'],'status'=>get_post_meta($job_id, '_jev_status', true),'input_current'=>jev_rules_current($data),'decision_recorded'=>is_array($record) && isset($record['outcome']),'failure_phase'=>in_array($phase,['decision','consumer_hook'],true)?$phase:null,'consumer_effect_verified'=>false];
 }
+
+/** Purpose: Cancel only queued work using the worker's same database lock. */
+function jev_rules_cancel_pending(int $job_id): bool {
+    jev_rules_job_receipt($job_id); // Reuse source-post authorization before lock or mutation.
+    $lock = 'jev_rules_lock_' . $job_id;
+    if (!add_option($lock, time(), '', false)) { return false; }
+    try {
+        if (get_post_meta($job_id, '_jev_status', true) !== 'queued') { return false; }
+        update_post_meta($job_id, '_jev_status', 'cancelled');
+        wp_clear_scheduled_hook('jev_rules_process', [$job_id]);
+        return true;
+    } finally { delete_option($lock); }
+}

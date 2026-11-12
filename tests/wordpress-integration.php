@@ -78,4 +78,24 @@ wp_set_current_user(0);
 try { jev_rules_job_receipt($hookFailed); throw new RuntimeException('Anonymous receipt accepted'); }
 catch (InvalidArgumentException $error) { check_jev(str_contains($error->getMessage(),'Access denied'), 'Wrong receipt access error'); }
 wp_set_current_user(1);
+$cancelled = jev_rules_enqueue($post, 'support');
+$beforeCancel = $requests; $beforeEmails = $emails;
+check_jev(jev_rules_cancel_pending($cancelled), 'Queued job was not cancelled');
+check_jev(get_post_meta($cancelled, '_jev_status', true) === 'cancelled', 'Cancellation not persisted');
+check_jev(wp_next_scheduled('jev_rules_process', [$cancelled]) === false, 'Cancelled cron event remained');
+jev_rules_process($cancelled);
+check_jev($requests === $beforeCancel && $emails === $beforeEmails, 'Cancelled job called provider or mail');
+check_jev(!jev_rules_cancel_pending($cancelled), 'Cancellation claimed a second mutation');
+$busy = jev_rules_enqueue($post, 'support');
+add_option('jev_rules_lock_' . $busy, 'held-by-worker', '', false);
+check_jev(!jev_rules_cancel_pending($busy), 'Cancellation crossed active worker lock');
+check_jev(get_option('jev_rules_lock_' . $busy) === 'held-by-worker', 'Cancellation removed another owner lock');
+check_jev(get_post_meta($busy, '_jev_status', true) === 'queued', 'Busy job mutated');
+delete_option('jev_rules_lock_' . $busy);
+wp_set_current_user(0);
+try { jev_rules_cancel_pending($busy); throw new RuntimeException('Anonymous cancellation accepted'); }
+catch (InvalidArgumentException $error) { check_jev(str_contains($error->getMessage(),'Access denied'), 'Wrong cancellation access error'); }
+wp_set_current_user(1);
+check_jev(jev_rules_cancel_pending($busy), 'Authorized queued job could not cancel after lock release');
+check_jev(!jev_rules_cancel_pending($job), 'Completed job was rewritten by cancellation');
 echo wp_json_encode(['wordpress'=>$GLOBALS['wp_version'],'php'=>PHP_VERSION,'checks'=>$checks,'status'=>'passed']) . "\n";
